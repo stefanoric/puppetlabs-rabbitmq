@@ -5,6 +5,7 @@ class rabbitmq(
   $cluster_nodes              = $rabbitmq::params::cluster_nodes,
   $config                     = $rabbitmq::params::config,
   $config_cluster             = $rabbitmq::params::config_cluster,
+  $config_mqtt                = $rabbitmq::params::config_mqtt,
   $config_path                = $rabbitmq::params::config_path,
   $config_stomp               = $rabbitmq::params::config_stomp,
   $default_user               = $rabbitmq::params::default_user,
@@ -24,6 +25,8 @@ class rabbitmq(
   $package_source             = undef,
   $repos_ensure               = $rabbitmq::params::repos_ensure,
   $manage_repos               = $rabbitmq::params::manage_repos,
+  $mqtt_ensure                = $rabbitmq::params::mqtt_ensure,
+  $mqtt_port                  = $rabbitmq::params::mqtt_port,
   $plugin_dir                 = $rabbitmq::params::plugin_dir,
   $rabbitmq_user              = $rabbitmq::params::rabbitmq_user,
   $rabbitmq_group             = $rabbitmq::params::rabbitmq_group,
@@ -41,6 +44,7 @@ class rabbitmq(
   $ssl_port                   = $rabbitmq::params::ssl_port,
   $ssl_interface              = $rabbitmq::params::ssl_interface,
   $ssl_management_port        = $rabbitmq::params::ssl_management_port,
+  $ssl_mqtt_port              = $rabbitmq::params::ssl_mqtt_port,
   $ssl_stomp_port             = $rabbitmq::params::ssl_stomp_port,
   $ssl_verify                 = $rabbitmq::params::ssl_verify,
   $ssl_fail_if_no_peer_cert   = $rabbitmq::params::ssl_fail_if_no_peer_cert,
@@ -82,6 +86,8 @@ class rabbitmq(
   validate_absolute_path($config_path)
   validate_bool($config_cluster)
   validate_bool($config_stomp)
+  validate_bool($config_mqtt)
+  validate_bool($mqtt_ensure)
   validate_string($default_user)
   validate_string($default_pass)
   validate_bool($delete_guest_user)
@@ -95,6 +101,9 @@ class rabbitmq(
   validate_absolute_path($plugin_dir)
   if ! is_integer($port) {
     validate_re($port, ['\d+','UNSET'])
+  }
+  if ! is_integer($mqtt_port) {
+    validate_re($mqtt_port, '\d+')
   }
   if ! is_integer($stomp_port) {
     validate_re($stomp_port, '\d+')
@@ -119,6 +128,9 @@ class rabbitmq(
   }
   if ! is_integer($ssl_management_port) {
     validate_re($ssl_management_port, '\d+')
+  }
+  if ! is_integer($ssl_mqtt_port) {
+    validate_re($ssl_mqtt_port, '\d+')
   }
   if ! is_integer($ssl_stomp_port) {
     validate_re($ssl_stomp_port, '\d+')
@@ -211,6 +223,14 @@ class rabbitmq(
 
   if $stomp_ensure {
     rabbitmq_plugin { 'rabbitmq_stomp':
+      ensure  => present,
+      require => Class['rabbitmq::install'],
+      notify  => Class['rabbitmq::service'],
+    }
+  }
+
+  if $mqtt_ensure {
+    rabbitmq_plugin { 'rabbitmq_mqtt':
       ensure  => present,
       require => Class['rabbitmq::install'],
       notify  => Class['rabbitmq::service'],
