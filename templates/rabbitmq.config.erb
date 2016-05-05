@@ -90,6 +90,14 @@
   <%- end -%>
   ]}
 <% end -%>
+<% if @config_mqtt -%>,
+  {rabbitmq_mqtt, [
+    {tcp_listeners, [<%= @mqtt_port %>]}
+  <%- if @ssl && @ssl_mqtt_port -%>,
+    {ssl_listeners, [<%= @ssl_mqtt_port %>]}
+  <%- end -%>
+  ]}
+<% end -%>
 <%- if @ldap_auth -%>,
 % Configure the LDAP authentication plugin
   {rabbitmq_auth_backend_ldap, [
