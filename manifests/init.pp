@@ -78,7 +78,7 @@ class rabbitmq(
   validate_string($package_name)
   validate_string($package_provider)
   validate_bool($repos_ensure)
-  validate_re($version, '^\d+\.\d+\.\d+(-\d+)*$') # Allow 3 digits and optional -n postfix.
+  validate_re($version, '^\d+\.\d+\.\d+(-\d+)*(ubuntu\d+?(\.\d+)?)?$') # Allow 3 digits, plus optionally a postfix (possibly containing 'ubuntu' in the name, such as '3.8.2-0ubuntu1.3')
   # Validate config parameters.
   validate_re($cluster_node_type, '^(ram|disc|disk)$') # Both disc and disk are valid http://www.rabbitmq.com/clustering.html
   validate_array($cluster_nodes)
